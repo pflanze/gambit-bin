@@ -1,0 +1,22 @@
+#!/bin/bash
+
+if [ -e .gam-emacs-gdb-off ]; then
+    exec gam-emacs "$@"
+else
+
+    ulimit -S -v 2300000
+
+    export LD_PRELOAD
+
+    if [ -f /lib/x86_64-linux-gnu/libpthread.so.0 ]; then
+	LD_PRELOAD=/lib/x86_64-linux-gnu/libpthread.so.0
+    elif [ -f /lib/i386-linux-gnu/libpthread.so.0 ]; then
+	LD_PRELOAD=/lib/i386-linux-gnu/libpthread.so.0
+    else
+	echo "libpthread.so.0 not found" >&2
+	exit 1
+    fi
+
+    exec gdbrun -- gsc -:tE,dar,t8,f8,-8 "$@"
+
+fi

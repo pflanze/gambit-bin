@@ -1,0 +1,10 @@
+#!/bin/bash
+
+ulimit -S -v 2300000
+
+# check flag outside emacs (because, well, I'm too lazy to learn emacs   properly, all)
+if [ -f .gam-gdb ]; then
+    exec gam-emacs-gdb "$@"
+else
+    exec gsc -:tE,dar,t8,f8,-8 "$@"
+fi

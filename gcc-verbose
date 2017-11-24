@@ -1,0 +1,56 @@
+#!/usr/bin/perl -w
+
+# Mon Aug  1 18:27:54 BST 2016
+(my $email='ch%christianjaeger,ch')=~ tr/%,/@./;
+
+use strict; use warnings FATAL => 'uninitialized';
+
+use Chj::xperlfunc;
+use Chj::singlequote 'singlequote_sh';
+
+sub show {
+    my ($prefix)=@_;
+    warn "$prefix gcc ".join(" ", map{singlequote_sh $_} @ARGV)."\n";
+}
+
+show ">>>";
+
+# don't have ccache call ~/bin/gcc again (which will be an infinite loop):
+$ENV{PATH}=~ s|$ENV{HOME}/?bin:||;
+
+my $gcc=`which gcc`; chomp $gcc;
+
+my $maybe_rename;
+
+# remove -o part from ARGV if it's a Gambit style one:
+for (my $i=0; $i<@ARGV-1; $i++) {
+    if ($ARGV[$i] eq "-o") {
+	my $path= $ARGV[$i+1];
+	if ($path=~ /^(.+)\.o\d+$/) {
+	    # Gambit style
+	    my $usepath= "$1.o";
+	    $maybe_rename= [$usepath, $path];
+	    @ARGV= (@ARGV[0..$i-1],
+		    "-o", $usepath,
+		    @ARGV[$i+2..$#ARGV],
+		    "-c" # only for ccache, removed again for gcc
+		   );
+	    show "...";
+
+	    # and put another gcc into ccache's view, that will remove
+	    # the "-c" again before actually calling the real gcc:
+	    $ENV{PATH}= "$ENV{HOME}/bin/gcc-ccache-fix:$ENV{PATH}";
+
+	    last;
+	}
+    }
+}
+
+# $ENV{CCACHE_LOGFILE}= ".ccache.log";
+
+xxsystem $gcc, @ARGV;
+
+if ($maybe_rename) {
+    xrename @$maybe_rename
+}
+

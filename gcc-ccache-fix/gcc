@@ -1,0 +1,22 @@
+#!/usr/bin/perl -w
+
+use strict; use warnings FATAL => 'uninitialized';
+
+use Chj::xperlfunc;
+use Chj::singlequote 'singlequote_sh';
+
+sub show {
+    my ($prefix)=@_;
+    warn "$prefix gcc ".join(" ", map{singlequote_sh $_} @ARGV)."\n";
+}
+
+# remove -c option that was appended
+@ARGV= grep { not($_ eq "-c") } @ARGV;
+
+show "real:";
+
+# call actual gcc
+$ENV{PATH}=~ s|$ENV{HOME}/?bin/gcc-ccache-fix/?:||;
+$ENV{PATH}=~ s|/usr/lib/ccache:||;
+
+exec "gcc",@ARGV;

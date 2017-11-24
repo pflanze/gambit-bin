@@ -1,0 +1,29 @@
+#!/usr/local/Gambit-C/current/bin/gsi-script
+;; -*-scheme-*-
+
+(include "scmlib/cjlib.scm")
+
+(define (usage)
+  (display
+   (list progname" [path]\n"
+	 "\n"
+	 "  deserialize the file at path or stdin and pretty-print it\n"
+	 "\n"))
+  (exit 1))
+
+(case (length progargs)
+  ((1)
+   (apply
+    (-> (path)
+	(if (equal? path "--help");; bad to not provide "--" then, tho.
+	    (usage)
+	    (pretty-print
+	     (file:read-binary path)
+	     (current-output-port))))
+    progargs))
+  ((0)
+   (pretty-print
+    (read-binary (current-input-port))
+    (current-output-port)))
+  (else
+   (usage)))

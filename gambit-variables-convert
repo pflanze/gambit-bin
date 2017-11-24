@@ -1,0 +1,45 @@
+#!/usr/bin/perl -w
+
+# Sun Jun  7 22:21:22 EDT 2009
+(my $email='christian-novo%jaeger,mine,nu')=~ tr/%,/@./;
+
+use strict;
+
+$0=~ /(.*?)([^\/]+)\z/s or die "?";
+my ($mydir, $myname)=($1,$2);
+sub usage {
+    print STDERR map{"$_\n"} @_ if @_;
+    print "$myname
+
+  filter stdin to stdout: change
+
+    ___HIDDEN sometype somevar;
+
+  into
+
+    ___HIDDEN( sometype, somevar);
+
+  (Christian Jaeger <$email>)
+";
+exit (@_ ? 1 : 0);
+}
+
+use Getopt::Long;
+our $verbose=0;
+GetOptions("verbose"=> \$verbose,
+	   "help"=> sub{usage},
+	   ) or exit 1;
+usage if @ARGV;
+
+while (<STDIN>) {
+    s/___HIDDEN\b(.*?)(\s*\b\w+)\s*;/DEFVAR($1,$2);/;
+    s/___HIDDEN\b(.*?)(\s*\b\w+)(\s*\[[^\[\]]*\])\s*;/DEFARRAY($1,$2,$3);/;
+    print or die $!;
+}
+
+close STDIN or die $!;
+close STDOUT or die $!;
+
+
+#use Chj::ruse;
+#use Chj::Backtrace; use Chj::repl; repl;

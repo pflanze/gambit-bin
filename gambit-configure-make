@@ -1,0 +1,12 @@
+#!/bin/bash
+
+set -eux
+ulimit -S -v unlimited
+./configure --enable-single-host --enable-multiple-versions
+
+make=gambit-make
+
+$make -j2
+$make bootstrap
+#make -j2 install ## what exactly is needed for  root not having to build the docs??? ah, well is make doc inough oder auch make info etc?
+$make -j2 doc

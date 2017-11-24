@@ -1,0 +1,5 @@
+#!/bin/bash
+
+set -eux
+export LIBS="-lutil -ldl -lm -lpthread"
+gambit-configure-make

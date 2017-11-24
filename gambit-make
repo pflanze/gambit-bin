@@ -1,0 +1,11 @@
+#!/bin/bash
+
+ulimit -S -v 1500000
+exec make C_COMPILER='gcc-4.2 -gdwarf-2 -g3' "$@"
+# -O0 ?  lassen 'mal'.
+
+#cd /COMPILE/gambc-v4_2_6
+
+#'ah' swap ist bisschen kritisch wieder wegen keinem enable-debug  klaaro
+#wenn galeon läuft.
+#aber nimmerschlimm

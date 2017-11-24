@@ -1,0 +1,32 @@
+#!/usr/local/Gambit-C/current/bin/gsi-script
+;; -*-scheme-*-
+
+(include "scmlib/cjlib.scm")
+(include "scmlib/broken-todo.scm");; (broken is only Gambit?); use it anyway.
+
+(define (usage)
+  (display
+   (list progname" [path]\n"
+	 "\n"
+	 "  deserialize the file at path or stdin and pretty-print it\n"
+	 "\n"))
+  (exit 1))
+
+(define (show-binary binary)
+  (pretty-print-with-sharing
+   binary
+   (current-output-port)))
+
+(case (length progargs)
+  ((1)
+   (apply
+    (-> (path)
+	(if (equal? path "--help") ;; bad to not provide "--" then, tho.
+	    (usage)
+	    (show-binary (file:read-binary path))))
+    
+    progargs))
+  ((0)
+   (show-binary (read-binary (current-input-port))))
+  (else
+   (usage)))
